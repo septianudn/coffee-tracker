@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import ReactDOM from 'react-dom/client';
 import { useEffect, useState } from "react";
 
 //const crypto = require("crypto");
@@ -13,8 +14,8 @@ const peraWallet = new PeraWalletConnect();
 
 // The app ID on testnet
 // RPS app
-const appIndex = 0;
-const appAddress = "";
+const appIndex = 205065607;
+const appAddress = "YQLJYL7WEXYHO353MK7DBRKGLU4YVNZ7DNX4UI3LXEHRMLA73IFZ6DUTCQ";
 
 // connect to the algorand node
 // token, address(server), port
@@ -25,14 +26,13 @@ const algod = new algosdk.Algodv2(
 );
 
 function App() {
-  const [accountAddress, setAccountAddress] = useState(null);
-  const [owner, setOwner] = useState(null);
-  const [local_farmer, set_local_farmer] = useState(null);
-  const [local_coffee_guid, set_local_coffee_guid] = useState(null);
-  const [local_coffee_type, set_local_coffee_type] = useState(null);
-  const [local_coffee_roaster, set_local_coffee_roaster] = useState(null);
-  const [local_coffee_batch_number, set_local_coffee_batch_number] = useState(null);
-  const [local_coffee_batch_size, set_local_coffee_batch_size] = useState(null);
+  const [accountAddress, setAccountAddress] = useState('');
+  const [local_farmer, set_local_farmer] = useState('');
+  const [local_coffee_guid, set_local_coffee_guid] = useState('');
+  const [local_coffee_type, set_local_coffee_type] = useState('');
+  const [local_coffee_roaster, set_local_coffee_roaster] = useState('');
+  const [local_coffee_batch_number, set_local_coffee_batch_number] = useState('');
+  const [local_coffee_batch_size, set_local_coffee_batch_size] = useState('');
 
   const isConnectedToPeraWallet = !!accountAddress; //convert string to boolean
 
@@ -51,9 +51,9 @@ function App() {
   }, []);
 
   return (
-    <Container>
+    <Container style={{backgroundColor: "#3A86B7"}}>
       <meta name="name" content="Testing frontend for PyTeal" />
-      <h1> Test frontend for PyTeal</h1>
+      <h1> PyTeal: Coffee traceability smart contract </h1>
       <Row>
         <Col>
           <Button
@@ -74,17 +74,96 @@ function App() {
         </Col>
       </Row>
       <br />
-      <Row>
-        <Col>
-          <Button onClick={() => setOwner(true)}>Start</Button>
-        </Col>
-        <Col>
-          <Button onClick={() => setOwner(false)}>Join</Button>
-        </Col>
-      </Row>
       <br />
+      <form>
+      <label>Coffee guid :
+        <input
+          type="number" 
+          value={local_coffee_guid}
+          onChange={(e) => set_local_coffee_guid(e.target.value)}
+        />
+      </label>
+    </form>
+    <br />
+      <form>
+      <label>Coffee Type :
+        <input
+          type="number" 
+          value={local_coffee_type}
+          onChange={(e) => set_local_coffee_type(e.target.value)}
+        />
+      </label>
+    </form>
+    <br />
+      <form>
+      <label>Coffee Roaster :
+        <input
+          type="number" 
+          value={local_coffee_roaster}
+          onChange={(e) => set_local_coffee_roaster(e.target.value)}
+        />
+      </label>
+    </form>
+    <br />
+      <form>
+      <label>Coffee Batch Number :
+        <input
+          type="number" 
+          value={local_coffee_batch_number}
+          onChange={(e) => set_local_coffee_batch_number(e.target.value)}
+        />
+      </label>
+    </form>
+    <br />
+      <form>
+      <label>Coffee Batch Size :
+        <input
+          type="number" 
+          value={local_coffee_batch_size}
+          onChange={(e) => set_local_coffee_batch_size(e.target.value)}
+        />
+      </label>
+    </form>
+    <br />
+    <br />
+
+    <Row>
+        <Col>
+          <Button onClick={() => createCoffeeApplication()}>Create Coffee Application</Button>
+        </Col>
+        <Col>
+          <Button onClick={() => receiveCoffee()}>Receive coffee</Button>
+        </Col>
+        <Col>
+          <Button onClick={() => processCoffee()}>Process coffee</Button>
+        </Col>
+        <Col>
+          <Button onClick={() => packCoffee()}>Pack coffee</Button>
+        </Col>
+        <Col>
+          <Button onClick={() => shipCoffee()}>Ship coffee</Button>
+        </Col>
+        <Col>
+          <Button onClick={() => receiveAtPort()}>Receive at port</Button>
+        </Col>
+        <Col>
+          <Button onClick={() => roastCoffee()}>Roast coffee</Button>
+        </Col>
+        <Col>
+          <Button onClick={() => exportCoffee()}>Export coffee</Button>
+        </Col>
+
+</Row>
+
+
+
+
     </Container>
+    
   );
+
+  
+
 
   function handleConnectWalletClick() {
     peraWallet
@@ -123,73 +202,86 @@ function App() {
       const { txId } = await algod.sendRawTransaction(signedTx).do();
       const result = await waitForConfirmation(algod, txId, 2);
     } catch (e) {
-      console.error(`There was an error calling the rps app: ${e}`);
-    }
-  }
-
-  async function createcoffeeApplication(
-  ) {
-    try {
-      /*   setRealHand(hand);
-      // get suggested params
-      const suggestedParams = await algod.getTransactionParams().do();
-      const appArgs = [
-        new Uint8Array(Buffer.from("start")),
-        new Uint8Array(Buffer.from(hashedhand, "base64")),
-      ];
-*/
-      const accounts = [""];
-
-      let actionTx = algosdk.makeApplicationNoOpTxn(
-        accountAddress,
-        // suggestedParams,
-        appIndex,
-        //  appArgs,
-        accounts
-      );
-      /*
-      let payTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: accountAddress,
-        to: appAddress,
-        amount: 100000,
-        suggestedParams: suggestedParams,
-      });
-*/
-      let txns = [actionTx, payTx];
-      algosdk.assignGroupID(txns);
-
-      const actionTxGroup = [
-        { txn: actionTx, signers: [accountAddress] },
-        { txn: payTx, signers: [accountAddress] }
-      ];
-
-      const signedTxns = await peraWallet.signTransaction([actionTxGroup]);
-
-      console.log(signedTxns);
-      const { txId } = await algod.sendRawTransaction(signedTxns).do();
-      const result = await waitForConfirmation(algod, txId, 4);
-      // checkCounterState();
-    } catch (e) {
       console.error(`There was an error calling the app: ${e}`);
     }
   }
 
-  async function joinCoffeeApplication(hand) {
+
+async function createCoffeeApplication() {
+      try {
+        //   setRealHand(hand);
+        // get suggested params
+        const suggestedParams = await algod.getTransactionParams().do();
+        const appArgs = [
+            new Uint8Array(Buffer.from("accept")), 
+            new Uint8Array(Buffer.from(JSON.stringify(local_farmer))),
+            new Uint8Array(Buffer.from(JSON.stringify(local_coffee_guid))),
+            new Uint8Array(Buffer.from(JSON.stringify(local_coffee_guid))),
+            new Uint8Array(Buffer.from(JSON.stringify(local_coffee_roaster))),
+            new Uint8Array(Buffer.from(JSON.stringify(local_coffee_batch_size))),
+            new Uint8Array(Buffer.from(JSON.stringify(local_coffee_batch_number)))
+
+
+
+    
+        ];
+  
+        const accounts = ["VPFT5JEZ6SKPTMTSMJUATZZHNYDCMMG6IXHY3U6333U5GWGOZWOK6CXC7M"];
+  
+        let actionTx = algosdk.makeApplicationNoOpTxn(
+          accountAddress,
+          suggestedParams,
+          appIndex,
+          appArgs,
+          accounts
+        );
+        
+        let payTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+          from: accountAddress,
+          to: appAddress,
+          amount: 100000,
+         suggestedParams: suggestedParams,
+        });
+        let txns = [actionTx, payTx];
+        algosdk.assignGroupID(txns);
+  
+        const actionTxGroup = [
+          { txn: actionTx, signers: [accountAddress] },
+          { txn: payTx, signers: [accountAddress] }
+        ];
+  
+        const signedTxns = await peraWallet.signTransaction([actionTxGroup]);
+  
+        console.log(signedTxns);
+        const { txId } = await algod.sendRawTransaction(signedTxns).do();
+        const result = await waitForConfirmation(algod, txId, 4);
+        // checkCounterState();
+      } catch (e) {
+        console.error(`There was an error calling the app: ${e}`);
+      }
+    }
+  
+  
+
+async function receiveCoffee(local_farmer, local_coffee_roaster) {
     try {
       // get suggested params
       const suggestedParams = await algod.getTransactionParams().do();
-      /*  const appArgs = [
-        new Uint8Array(Buffer.from("accept")),
-        new Uint8Array(Buffer.from(hand)),
+        const appArgs = [
+        new Uint8Array(Buffer.from("accept")), // naziv dugmeta za receiveCoffee
+        new Uint8Array(Buffer.from(JSON.stringify(local_farmer))),
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_roaster)))
+
       ];
-*/
-      const accounts = [""];
+
+      const accounts = ["D2PNCTZN2NDLMGP6ZLRGW6OPXK7QG22AO5EIQL2H254USDU3AQCFCCV6DA"];
 
       let actionTx = algosdk.makeApplicationNoOpTxn(
         accountAddress,
         suggestedParams,
         appIndex,
-        accounts
+        accounts,
+        appArgs
       );
 
       let payTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
@@ -217,64 +309,288 @@ function App() {
       console.error(`There was an error calling the rps app: ${e}`);
     }
   }
-  /*
-  // RESOLVE RPS WINNER
-  async function resolveRpsApplication() {
+
+  async function processCoffee(local_coffee_batch_size) {
     try {
       // get suggested params
       const suggestedParams = await algod.getTransactionParams().do();
-      const appArgs = [
-        new Uint8Array(Buffer.from("resolve")),
-        new Uint8Array(Buffer.from(realhand)),
+        const appArgs = [
+        new Uint8Array(Buffer.from("accept")), // naziv dugmeta za processCoffee
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_batch_size)))
+
       ];
 
-      const accounts = [
-        "WF3HWK3UJEKG3BCHDYPGZ5TMW5BWAFBPDBTID6FJQGOOR6XA7MPJ2NWMVM",
-      ];
+      const accounts = ["VPFT5JEZ6SKPTMTSMJUATZZHNYDCMMG6IXHY3U6333U5GWGOZWOK6CXC7M"];
 
       let actionTx = algosdk.makeApplicationNoOpTxn(
         accountAddress,
         suggestedParams,
         appIndex,
-        appArgs,
-        accounts
+        accounts,
+        appArgs
       );
 
-      const actionTxGroup = [{ txn: actionTx, signers: [accountAddress] }];
+      let payTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: accountAddress,
+        to: appAddress,
+        amount: 100000,
+        suggestedParams: suggestedParams
+      });
+
+      let txns = [actionTx, payTx];
+      algosdk.assignGroupID(txns);
+
+      const actionTxGroup = [
+        { txn: actionTx, signers: [accountAddress] },
+        { txn: payTx, signers: [accountAddress] }
+      ];
 
       const signedTxns = await peraWallet.signTransaction([actionTxGroup]);
-      const txns = [signedTxns];
 
       console.log(signedTxns);
-
-      //const dr = algosdk.createDryrun(algod, txns);
-
-      //test debugging
-      //const dryRunResult = await algod.dryrun(dr).do();
-      //console.log(dryRunResult);
-
       const { txId } = await algod.sendRawTransaction(signedTxns).do();
       const result = await waitForConfirmation(algod, txId, 4);
-      console.log(result);
+      // checkCounterState();
     } catch (e) {
       console.error(`There was an error calling the rps app: ${e}`);
     }
   }
-*/
-  // Clear state
-  // {
-  //   "txn": {
-  //     "apan": 3,
-  //     "apid": 51,
-  //     "fee": 1000,
-  //     "fv": 13231,
-  //     "gh": "ALXYc8IX90hlq7olIdloOUZjWfbnA3Ix1N5vLn81zI8=",
-  //     "lv": 14231,
-  //     "note": "U93ZQy24zJ0=",
-  //     "snd": "LNTMAFSF43V7RQ7FBBRAWPXYZPVEBGKPNUELHHRFMCAWSARPFUYD2A623I",
-  //     "type": "appl"
-  //   }
-  // }
-}
 
+  async function packCoffee(local_coffee_batch_size) {
+    try {
+      // get suggested params
+      const suggestedParams = await algod.getTransactionParams().do();
+        const appArgs = [
+        new Uint8Array(Buffer.from("accept")), // naziv dugmeta za packCoffee
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_batch_size)))
+
+      ];
+
+      const accounts = ["VPFT5JEZ6SKPTMTSMJUATZZHNYDCMMG6IXHY3U6333U5GWGOZWOK6CXC7M"];
+
+      let actionTx = algosdk.makeApplicationNoOpTxn(
+        accountAddress,
+        suggestedParams,
+        appIndex,
+        accounts,
+        appArgs
+      );
+
+      let payTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: accountAddress,
+        to: appAddress,
+        amount: 100000,
+        suggestedParams: suggestedParams
+      });
+
+      let txns = [actionTx, payTx];
+      algosdk.assignGroupID(txns);
+
+      const actionTxGroup = [
+        { txn: actionTx, signers: [accountAddress] },
+        { txn: payTx, signers: [accountAddress] }
+      ];
+
+      const signedTxns = await peraWallet.signTransaction([actionTxGroup]);
+
+      console.log(signedTxns);
+      const { txId } = await algod.sendRawTransaction(signedTxns).do();
+      const result = await waitForConfirmation(algod, txId, 4);
+      // checkCounterState();
+    } catch (e) {
+      console.error(`There was an error calling the rps app: ${e}`);
+    }
+  }
+
+  async function shipCoffee(local_coffee_batch_number) {
+    try {
+      // get suggested params
+      const suggestedParams = await algod.getTransactionParams().do();
+        const appArgs = [
+        new Uint8Array(Buffer.from("accept")), // naziv dugmeta za shipCoffee
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_batch_number)))
+
+      ];
+
+      const accounts = ["VPFT5JEZ6SKPTMTSMJUATZZHNYDCMMG6IXHY3U6333U5GWGOZWOK6CXC7M"];
+
+      let actionTx = algosdk.makeApplicationNoOpTxn(
+        accountAddress,
+        suggestedParams,
+        appIndex,
+        accounts,
+        appArgs
+      );
+
+      let payTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: accountAddress,
+        to: appAddress,
+        amount: 100000,
+        suggestedParams: suggestedParams
+      });
+
+      let txns = [actionTx, payTx];
+      algosdk.assignGroupID(txns);
+
+      const actionTxGroup = [
+        { txn: actionTx, signers: [accountAddress] },
+        { txn: payTx, signers: [accountAddress] }
+      ];
+
+      const signedTxns = await peraWallet.signTransaction([actionTxGroup]);
+
+      console.log(signedTxns);
+      const { txId } = await algod.sendRawTransaction(signedTxns).do();
+      const result = await waitForConfirmation(algod, txId, 4);
+      // checkCounterState();
+    } catch (e) {
+      console.error(`There was an error calling the rps app: ${e}`);
+    }
+  }
+
+ async function receiveAtPort(local_coffee_batch_size, local_coffee_batch_number, local_coffee_roaster) {
+    try {
+      // get suggested params
+      const suggestedParams = await algod.getTransactionParams().do();
+        const appArgs = [
+        new Uint8Array(Buffer.from("accept")), // naziv dugmeta za receive
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_batch_size))),
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_batch_number))),
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_roaster)))
+
+
+      ];
+
+      const accounts = ["D2PNCTZN2NDLMGP6ZLRGW6OPXK7QG22AO5EIQL2H254USDU3AQCFCCV6DA"];
+
+      let actionTx = algosdk.makeApplicationNoOpTxn(
+        accountAddress,
+        suggestedParams,
+        appIndex,
+        accounts,
+        appArgs
+      );
+
+      let payTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: accountAddress,
+        to: appAddress,
+        amount: 100000,
+        suggestedParams: suggestedParams
+      });
+
+      let txns = [actionTx, payTx];
+      algosdk.assignGroupID(txns);
+
+      const actionTxGroup = [
+        { txn: actionTx, signers: [accountAddress] },
+        { txn: payTx, signers: [accountAddress] }
+      ];
+
+      const signedTxns = await peraWallet.signTransaction([actionTxGroup]);
+
+      console.log(signedTxns);
+      const { txId } = await algod.sendRawTransaction(signedTxns).do();
+      const result = await waitForConfirmation(algod, txId, 4);
+      // checkCounterState();
+    } catch (e) {
+      console.error(`There was an error calling the rps app: ${e}`);
+    }
+  }
+
+  async function roastCoffee(local_coffee_roaster) {
+    try {
+      // get suggested params
+      const suggestedParams = await algod.getTransactionParams().do();
+        const appArgs = [
+        new Uint8Array(Buffer.from("accept")), // naziv dugmeta za roastCoffee
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_roaster)))
+
+      ];
+
+      const accounts = ["VPFT5JEZ6SKPTMTSMJUATZZHNYDCMMG6IXHY3U6333U5GWGOZWOK6CXC7M"];
+
+      let actionTx = algosdk.makeApplicationNoOpTxn(
+        accountAddress,
+        suggestedParams,
+        appIndex,
+        accounts,
+        appArgs
+      );
+
+      let payTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: accountAddress,
+        to: appAddress,
+        amount: 100000,
+        suggestedParams: suggestedParams
+      });
+
+      let txns = [actionTx, payTx];
+      algosdk.assignGroupID(txns);
+
+      const actionTxGroup = [
+        { txn: actionTx, signers: [accountAddress] },
+        { txn: payTx, signers: [accountAddress] }
+      ];
+
+      const signedTxns = await peraWallet.signTransaction([actionTxGroup]);
+
+      console.log(signedTxns);
+      const { txId } = await algod.sendRawTransaction(signedTxns).do();
+      const result = await waitForConfirmation(algod, txId, 4);
+      // checkCounterState();
+    } catch (e) {
+      console.error(`There was an error calling the rps app: ${e}`);
+    }
+  }
+
+  async function exportCoffee(local_coffee_guid, local_coffee_roaster) {
+    try {
+      // get suggested params
+      const suggestedParams = await algod.getTransactionParams().do();
+        const appArgs = [
+        new Uint8Array(Buffer.from("accept")), // naziv dugmeta za exportCoffee
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_guid))),
+        new Uint8Array(Buffer.from(JSON.stringify(local_coffee_roaster)))
+
+
+      ];
+
+    
+
+      const accounts = ["VPFT5JEZ6SKPTMTSMJUATZZHNYDCMMG6IXHY3U6333U5GWGOZWOK6CXC7M"];
+
+      let actionTx = algosdk.makeApplicationNoOpTxn(
+        accountAddress,
+        suggestedParams,
+        appIndex,
+        accounts,
+        appArgs
+      );
+
+      let payTx = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: accountAddress,
+        to: appAddress,
+        amount: 100000,
+        suggestedParams: suggestedParams
+      });
+
+      let txns = [actionTx, payTx];
+      algosdk.assignGroupID(txns);
+
+      const actionTxGroup = [
+        { txn: actionTx, signers: [accountAddress] },
+        { txn: payTx, signers: [accountAddress] }
+      ];
+
+      const signedTxns = await peraWallet.signTransaction([actionTxGroup]);
+
+      console.log(signedTxns);
+      const { txId } = await algod.sendRawTransaction(signedTxns).do();
+      const result = await waitForConfirmation(algod, txId, 4);
+      // checkCounterState();
+    } catch (e) {
+      console.error(`There was an error calling the rps app: ${e}`);
+    }
+  }
+}
 export default App;
